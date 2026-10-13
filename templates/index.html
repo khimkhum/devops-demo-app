@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ứng dụng Flask demo cho project DevOps của Khiêm.">
+<title>Khiem Lab — DevOps Demo</title>
+<!-- Adapted from Tooplate 2165 Neon Carbon https://www.tooplate.com/view/2165-neon-carbon -->
+<link rel="stylesheet" href="{{ url_for('static', filename='tooplate-neon-carbon-style.css') }}">
+<style>
+body{font-family:Arial,sans-serif}.hero-glow-title{font-size:clamp(38px,7vw,96px)}
+.hero-sub{line-height:1.8;max-width:690px}.card-value{overflow-wrap:anywhere;font-size:clamp(22px,3vw,42px)}
+.btn-primary,.btn-ghost{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.card-chart{height:auto;display:flex;flex-direction:column;gap:14px;align-items:stretch;margin:25px 0}
+.step{font-family:monospace;color:var(--text-secondary);font-size:14px}.step b{color:var(--cyan);margin-right:14px}
+.console-body{overflow-wrap:anywhere}.health-note{margin-top:16px;color:var(--text-secondary);line-height:1.7}
+.live-feed-list:empty::after{content:'Chưa có lượt kiểm tra. Nhấn Kiểm tra API để bắt đầu.';display:block;padding:24px;color:var(--text-secondary)}
+.feed-time{min-width:80px}.feed-event{overflow-wrap:anywhere}.live-feed-count{font-size:12px}.hud-title{white-space:nowrap}
+.card-ring-value{font-size:22px}.card-desc{line-height:1.7}.card-tag{margin-top:12px}
+@media(max-width:600px){.hud-right{display:none}.hero-cta-row{flex-wrap:wrap}.live-feed-item{flex-wrap:wrap;gap:10px}}
+</style>
+</head><body>
+<aside class="sidebar" aria-label="Main Navigation">
+
+  <!-- Brand Mark -->
+  <div class="sidebar-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/>
+      <line x1="12" y1="2" x2="12" y2="22"/>
+    </svg>
+  </div>
+
+  <!-- 8 Icon Utility Links -->
+  <nav class="sidebar-icons">
+    <a href="#hero" class="sidebar-icon active" aria-label="Dashboard" title="Dashboard">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </a>
+    <a href="#cards" class="sidebar-icon" aria-label="Analytics" title="Analytics">
+      <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    </a>
+    <a href="#feed" class="sidebar-icon" aria-label="Feed" title="Live Feed">
+      <svg viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+    </a>
+    <a href="/health" class="sidebar-icon" aria-label="Media" title="Health API">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21"/></svg>
+    </a>
+    <a href="/version" class="sidebar-icon" aria-label="Vault" title="Version API">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+    </a>
+    <a href="#console" class="sidebar-icon" aria-label="Terminal" title="Console">
+      <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+    </a>
+    <a href="#console" class="sidebar-icon" aria-label="Settings" title="Settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </a>
+    <a href="#console" class="sidebar-icon" aria-label="Profile" title="Profile">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+  </nav>
+
+  <!-- System Status -->
+  <div class="sidebar-status">
+    <div class="sidebar-status-label">System</div>
+    <div>
+      <span class="sidebar-status-dot"></span>
+      <span class="sidebar-status-text">FLASK</span>
+    </div>
+    <div class="sidebar-status-uptime" id="uptimeCounter">Local session</div>
+  </div>
+</aside>
+
+<!-- ═══════ MOBILE ═══════ -->
+<button class="hamburger" aria-label="Toggle Navigation"><span></span><span></span><span></span></button>
+<nav class="mobile-nav" aria-label="Mobile Navigation">
+  <a href="#hero">Dashboard</a>
+  <a href="#cards">Analytics</a>
+  <a href="#feed">Live Feed</a>
+  <a href="/health">Health API</a>
+  <a href="/version">Version API</a>
+  <a href="#console">Console</a>
+</nav>
+
+
+<main class="main-stage" id="mainStage">
+<header class="hud-header"><div class="hud-left"><div class="hud-title">KHIEM / LAB</div><div class="hud-breadcrumb"><span>&gt;</span> devops <span>&gt;</span> application</div></div>
+<div class="hud-right"><div class="hud-stat">ENV <span class="val">{{ environment }}</span></div><div class="hud-divider"></div><div class="hud-stat">BUILD <span class="val">{{ version }}</span></div></div></header>
+<section class="hero-core" id="hero"><div class="hero-core-bg"></div><div class="hero-grid-lines"></div><div class="hero-content">
+<div class="hero-tag">// PYTHON APPLICATION · DEVOPS INTERNSHIP PROJECT</div>
+<h1 class="hero-glow-title">SHIP<span> / </span>LEARN</h1>
+<p class="hero-sub">Từ dòng code đầu tiên đến một ứng dụng chạy thật.<br>Project của <strong>Lê Văn Khiêm</strong> — bắt đầu với Python, tiến tới Docker, Kubernetes và GitOps.</p>
+<div class="hero-cta-row"><button class="btn-primary" id="checkApi" type="button">Kiểm tra API ↗</button><a class="btn-ghost" href="/version" target="_blank" rel="noopener">Xem phiên bản</a></div>
+<p class="health-note" id="healthNote" aria-live="polite">Kết quả kiểm tra sẽ xuất hiện bên dưới.</p>
+</div></section>
+<div class="dashboard">
+<div class="card-grid-zone" id="cards">
+<div class="dash-card tech-bracket reveal"><div class="card-id"><span class="dot"></span> DELIVERY JOURNEY</div><div class="card-value">01 <span class="unit">/ 06</span></div>
+<div class="card-chart"><div class="step"><b>01</b> Python application</div><div class="step"><b>02</b> Docker & registry</div><div class="step"><b>03</b> Kubernetes</div><div class="step"><b>04</b> GitLab CI</div><div class="step"><b>05</b> Argo CD / GitOps</div><div class="step"><b>06</b> Release & rollback</div></div><div class="card-desc">Lộ trình dự kiến. Các bước hạ tầng sẽ được triển khai sau.</div><span class="card-tag neutral">APPLICATION DEMO</span></div>
+<div class="dash-card tech-bracket reveal"><div class="card-id"><span class="dot"></span> API HEALTH</div><div class="card-ring"><span class="card-ring-value" id="healthState">CHƯA ĐO</span></div><div class="card-desc" style="text-align:center;margin-top:14px">Kiểm tra trực tiếp<br><code>GET /health</code></div></div>
+<div class="dash-card tech-bracket reveal"><div class="card-id"><span class="dot"></span> RELEASE VERSION</div><div class="card-value">{{ version }}</div><div class="card-desc">Phiên bản được cấu hình bằng biến môi trường APP_VERSION. Đổi phiên bản để quan sát mỗi lần deploy.</div><span class="card-tag neutral">CURRENT BUILD</span></div>
+<div class="dash-card tech-bracket reveal"><div class="card-id"><span class="dot"></span> ENVIRONMENT</div><div class="card-value">{{ environment }}</div><div class="card-desc">Cấu hình bằng APP_ENV. Cùng mã nguồn có thể chạy ở local, staging hoặc production.</div><span class="card-tag neutral">RUNTIME CONFIG</span></div>
+<div class="dash-card tech-bracket reveal"><div class="card-id"><span class="dot"></span> HTTP ROUND TRIP</div><div class="card-value"><span id="latency">—</span> <span class="unit">ms</span></div><div class="card-desc">Thời gian request gần nhất đo từ trình duyệt. Không phải số liệu P95 hay benchmark.</div></div>
+</div>
+<div class="live-feed-zone reveal" id="feed"><div class="live-feed-header"><div class="live-feed-title"><span class="live-dot"></span> Lịch sử kiểm tra API</div><div class="live-feed-count">Phiên trình duyệt hiện tại</div></div><ul class="live-feed-list" id="eventList" aria-live="polite"></ul></div>
+<div class="console-zone" id="console"><div class="console-bar"><span class="console-bar-dot r"></span><span class="console-bar-dot y"></span><span class="console-bar-dot g"></span><span class="console-bar-title">khiem-lab — API response</span></div>
+<div class="console-body"><div><span class="prompt">$</span> <span class="path">GET /health</span></div><pre id="apiOutput" style="white-space:pre-wrap;margin:16px 0;color:var(--cyan)">Nhấn “Kiểm tra API” để xem phản hồi thực tế.</pre><div><span class="comment"># Giao diện đang được phục vụ bởi Flask.</span></div></div>
+<div class="console-attribution">Giao diện dựa trên <a href="https://www.tooplate.com/view/2165-neon-carbon" target="_blank" rel="noopener">Neon Carbon</a> by Tooplate · Flask demo by Khiêm</div></div>
+</div></main>
+<script src="{{ url_for('static', filename='tooplate-neon-carbon-script.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
