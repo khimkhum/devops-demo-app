@@ -25,3 +25,7 @@ APP_VERSION=v2 APP_ENV=staging python app.py
 Nút kiểm tra API gọi `/health` thật. Lịch sử chỉ lưu trong phiên trình duyệt.
 Các phần Docker, CI, Kubernetes và GitOps chưa được triển khai.
 Khi triển khai container sẽ dùng Gunicorn thay development server.
+
+## Health check
+
+Run: `bash scripts/check-health.sh http://127.0.0.1:8000`
