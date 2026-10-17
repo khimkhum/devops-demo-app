@@ -1,0 +1,108 @@
+stages:
+  - test
+  - build
+
+default:
+  tags:
+    - intern-lab
+
+variables:
+  HARBOR_REGISTRY: "192.168.1.31:8443"
+
+unit_test:
+  stage: test
+  image: python:3.14-slim
+
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+  cache:
+    key:
+      prefix: pip-python314
+      files:
+        - requirements.txt
+        - requirements-dev.txt
+    paths:
+      - .cache/pip/
+
+  script:
+    - python -m pip install -r requirements-dev.txt
+    - python -m pytest -q --junitxml=reports/junit.xml
+
+  artifacts:
+    when: always
+    expire_in: 7 days
+    reports:
+      junit: reports/junit.xml
+    paths:
+      - reports/junit.xml
+
+build_image:
+  stage: build
+
+  image:
+    name: ghcr.io/osscontainertools/kaniko:v1.28.6-debug@sha256:7ab44d0131c3051b6dea128067e258c7afb5c4815082a93b9cf6c624f2140bf0
+    entrypoint: [""]
+
+  needs:
+    - job: unit_test
+      artifacts: false
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+  script:
+    - |
+      set -eu
+      umask 077
+
+      : "${HARBOR_USERNAME:?Missing HARBOR_USERNAME}"
+      : "${HARBOR_PASSWORD:?Missing HARBOR_PASSWORD}"
+      : "${HARBOR_CA_CRT:?Missing HARBOR_CA_CRT}"
+      test -s "$HARBOR_CA_CRT"
+
+      mkdir -p /kaniko/.docker "$CI_PROJECT_DIR/reports"
+
+      AUTH="$(printf '%s:%s' "$HARBOR_USERNAME" "$HARBOR_PASSWORD" | base64 | tr -d '\n')"
+
+      printf '{"auths":{"%s":{"auth":"%s"}}}\n' \
+        "$HARBOR_REGISTRY" "$AUTH" \
+        > /kaniko/.docker/config.json
+
+      unset AUTH
+
+      IMAGE_REPOSITORY="$HARBOR_REGISTRY/intern/devops-demo"
+
+      /kaniko/executor \
+        --context "$CI_PROJECT_DIR" \
+        --dockerfile "$CI_PROJECT_DIR/Dockerfile" \
+        --destination "$IMAGE_REPOSITORY:$CI_COMMIT_SHA" \
+        --destination "$IMAGE_REPOSITORY:$CI_COMMIT_REF_SLUG" \
+        --registry-certificate "$HARBOR_REGISTRY=$HARBOR_CA_CRT" \
+        --cache=true \
+        --cache-repo "$HARBOR_REGISTRY/intern/devops-demo-cache" \
+        --cache-ttl=168h \
+        --compressed-caching=false \
+        --label "org.opencontainers.image.revision=$CI_COMMIT_SHA" \
+        --label "org.opencontainers.image.source=$CI_PROJECT_URL" \
+        --digest-file "$CI_PROJECT_DIR/reports/image.digest" \
+        --push-retry=3
+
+      IMAGE_DIGEST="$(cat "$CI_PROJECT_DIR/reports/image.digest")"
+
+      printf 'IMAGE_REPOSITORY=%s\nIMAGE_DIGEST=%s\nIMAGE_REF=%s@%s\n' \
+        "$IMAGE_REPOSITORY" "$IMAGE_DIGEST" \
+        "$IMAGE_REPOSITORY" "$IMAGE_DIGEST" \
+        > "$CI_PROJECT_DIR/reports/build.env"
+
+  after_script:
+    - rm -f /kaniko/.docker/config.json
+
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - reports/image.digest
+      - reports/build.env
+    reports:
+      dotenv: reports/build.env
