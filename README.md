@@ -72,6 +72,49 @@ docker compose down
 
 Named volumes are retained. Adding `-v` deletes the Compose named volumes.
 
-## Current scope
+## Deploy from Harbor
 
-Local Docker Compose lab. Harbor, Kubernetes, GitLab CI and Argo CD are planned next.
+The application image is stored in a private Harbor project.
+The deployment configuration pins the image by digest.
+
+Prerequisites:
+- Docker and Docker Compose.
+- A running Harbor registry reachable at the configured address.
+- The Harbor CA trusted by Docker Engine.
+- Registry credentials with pull permission.
+- A local `.env` file based on `.env.example`.
+
+Authenticate interactively with a Harbor robot account:
+
+```bash
+docker login 192.168.1.31:8443 -u 'robot$intern+deploy-pull'
+```
+
+Pull and deploy the application:
+
+```bash
+docker compose -f compose.yaml -f compose.harbor.yaml pull app
+docker compose -f compose.yaml -f compose.harbor.yaml up -d --no-build app
+```
+
+Verify:
+
+```bash
+bash scripts/check-health.sh http://127.0.0.1:8084
+curl -i http://127.0.0.1:8084/ready
+curl http://127.0.0.1:8084/version
+```
+
+Verified results:
+- The application container references the Harbor image by digest.
+- `/health` returns 200.
+- `/ready` returns 200 after querying PostgreSQL.
+- `/version` reports version `v4` and environment `harbor-lab`.
+
+## Lab limitations
+
+This is a local lab. The registry uses a private LAN IP and a private CA.
+Other machines must have network access and trust the CA before pulling images.
+Registry credentials and private keys are not included in this repository.
+
+Kubernetes, GitLab CI and Argo CD are not implemented yet.
