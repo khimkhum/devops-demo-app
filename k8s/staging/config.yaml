@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devops-demo-config
+  namespace: staging
+data:
+  APP_VERSION: "v4"
+  APP_ENV: "staging"
+  DB_HOST: "postgres"
+  DB_PORT: "5432"

@@ -1,0 +1,40 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+
+metadata:
+  name: intern-lab
+
+servers: 1
+agents: 0
+
+image: rancher/k3s:v1.35.5-k3s1
+
+kubeAPI:
+  host: "127.0.0.1"
+  hostIP: "127.0.0.1"
+  hostPort: "6550"
+
+ports:
+  - port: "127.0.0.1:8088:80"
+    nodeFilters:
+      - loadbalancer
+
+volumes:
+  - volume: "${HOME}/devops-intern-lab/infra/harbor-certs/ca.crt:/etc/ssl/certs/harbor-lab-ca.crt:ro"
+    nodeFilters:
+      - server:0
+
+registries:
+  config: |
+    configs:
+      "192.168.1.31:8443":
+        tls:
+          ca_file: /etc/ssl/certs/harbor-lab-ca.crt
+
+options:
+  k3d:
+    wait: true
+    timeout: "180s"
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

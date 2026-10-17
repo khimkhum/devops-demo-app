@@ -118,3 +118,69 @@ Other machines must have network access and trust the CA before pulling images.
 Registry credentials and private keys are not included in this repository.
 
 Kubernetes, GitLab CI and Argo CD are not implemented yet.
+
+## Kubernetes local deployment
+
+The application runs on a single-node K3s cluster managed by k3d.
+
+Architecture:
+Browser -> Traefik Ingress -> ClusterIP Service -> Flask/Gunicorn Pods
+-> PostgreSQL StatefulSet -> PersistentVolumeClaim
+
+Components:
+- Namespace: staging.
+- Two application replicas with a digest-pinned Harbor image.
+- ConfigMap for application configuration.
+- Secrets for database credentials and private registry authentication.
+- Startup, readiness and liveness probes.
+- PostgreSQL StatefulSet with a 1Gi local-path PVC.
+- ResourceQuota for the staging namespace.
+
+Cluster configuration: `infra/k3d/cluster.yaml`.
+Application manifests: `k8s/staging/`.
+
+Prerequisites:
+- Docker, k3d and a compatible kubectl version.
+- Harbor reachable at the configured LAN address.
+- The Harbor CA available at the path in the cluster configuration.
+- Secrets `db-credentials` and `harbor-pull` created in `staging`.
+
+Create the cluster:
+
+```bash
+k3d cluster create --config infra/k3d/cluster.yaml
+```
+
+After provisioning the namespace and Secrets, apply the manifests:
+
+```bash
+kubectl apply -f k8s/staging/
+```
+
+Verify:
+
+```bash
+kubectl -n staging get deployment,statefulset,pods,pvc
+bash scripts/check-health.sh http://127.0.0.1:8088
+curl -i http://127.0.0.1:8088/ready
+```
+
+Open http://localhost:8088.
+
+This is a single-node local lab. Local-path storage depends on the node.
+Database passwords, registry tokens and kubeconfig are not committed.
+
+## Automated tests
+
+Install development dependencies and run:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q --junitxml=reports/junit.xml
+```
+
+Tests cover the HTML page, health endpoint, version configuration,
+database readiness success/failure and unknown routes.
+
+Database interactions are mocked in these tests.
+Deployed PostgreSQL connectivity is checked separately through `/ready`.
