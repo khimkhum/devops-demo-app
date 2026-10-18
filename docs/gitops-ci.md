@@ -52,5 +52,8 @@ git pull --ff-only origin main
 
 Local tests cover valid and invalid digest handling, staging/prod separation,
 a real commit and push to disposable Git repositories, idempotence and stale
-pipeline rejection. The cross-project GitLab permission settings and full
-three-stage pipeline still require a live run.
+pipeline rejection. Live cross-project push was verified in pipeline #2959930016:
+all three jobs passed, 14 tests were reported and the source commit c7740355
+produced GitOps commit 2fab7e1. A later visible dashboard change was delivered
+automatically to staging, then promoted manually to prod. Both Applications were
+Synced/Healthy with HTTP readiness 200. See [release evidence](EVIDENCE.md).
