@@ -1,6 +1,7 @@
 stages:
   - test
   - build
+  - gitops
 
 default:
   tags:
@@ -8,10 +9,15 @@ default:
 
 variables:
   HARBOR_REGISTRY: "192.168.1.32:8443"
+  GITOPS_REPO_URL: "https://gitlab.com/levankhiem0000/devops-demo-gitops.git"
 
 unit_test:
   stage: test
   image: python:3.14-slim
+
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends git ca-certificates
 
   variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -109,3 +115,19 @@ build_image:
       - reports/build.env
     reports:
       dotenv: reports/build.env
+
+update_staging:
+  stage: gitops
+  image: python:3.14-slim
+  needs:
+    - job: build_image
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  resource_group: gitops-staging
+  interruptible: true
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends git ca-certificates
+  script:
+    - sh ci/update_gitops.sh

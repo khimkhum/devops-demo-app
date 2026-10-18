@@ -184,3 +184,15 @@ database readiness success/failure and unknown routes.
 
 Database interactions are mocked in these tests.
 Deployed PostgreSQL connectivity is checked separately through `/ready`.
+
+The GitOps tests also use disposable local Git repositories to verify staging-only
+updates, idempotency and stale-pipeline rejection. Git must be installed to run them.
+
+## CI to GitOps staging
+
+The pipeline includes an update_staging job after the Kaniko build. It consumes
+the image digest artifact and updates the separate GitOps repository. Production
+promotion remains manual.
+
+See [GitOps CI setup](docs/gitops-ci.md) for required GitLab permissions and the
+remaining live verification.
