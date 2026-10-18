@@ -1,4 +1,4 @@
-# Khiem DevOps Lab
+# DevOps Lab
 
 ### CI/CD & GitOps delivery for a Flask application
 
