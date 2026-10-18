@@ -5,6 +5,7 @@ metadata:
   namespace: staging
 spec:
   replicas: 2
+  minReadySeconds: 5
   revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate
@@ -20,6 +21,7 @@ spec:
         app: devops-demo
     spec:
       automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 45
       imagePullSecrets:
         - name: harbor-pull
       securityContext:
@@ -28,7 +30,7 @@ spec:
         runAsGroup: 10001
       containers:
         - name: app
-          image: "192.168.1.32:8443/intern/devops-demo@sha256:73c42c9ba1b009ca5b861bd577c0e9e0e3cf598326f6692b8fc53f5c189e217e"
+          image: "192.168.1.32:8443/intern/devops-demo@sha256:b6b3909e4165329cbacb09c5a6e0ea5305ae363dfc13cb72d210b8856800ffc7"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -57,6 +59,10 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: POSTGRES_PASSWORD
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]        
           resources:
             requests:
               cpu: "100m"
