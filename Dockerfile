@@ -3,10 +3,10 @@ FROM python:3.14-slim AS builder
 
 WORKDIR /build
 
-RUN python -m venv /opt/venv
+RUN umask 022 && python -m venv /opt/venv
 
 COPY requirements.txt .
-RUN /opt/venv/bin/python -m pip install \
+RUN umask 022 && /opt/venv/bin/python -m pip install \
     --no-cache-dir -r requirements.txt
 
 
@@ -31,6 +31,9 @@ RUN find /app -type d -exec chmod 755 {} + \
     && find /app -type f -exec chmod 644 {} +
 
 USER appuser
+
+# Verify runtime dependencies are readable by the application user.
+RUN python -c "import os; assert os.geteuid() == 10001; import flask, gunicorn.app.wsgiapp, psycopg"
 
 EXPOSE 8000
 

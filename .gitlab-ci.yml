@@ -74,6 +74,9 @@ build_image:
 
       IMAGE_REPOSITORY="$HARBOR_REGISTRY/intern/devops-demo"
 
+      # Credentials were created with umask 077; build files need normal read permissions.
+      umask 022
+
       /kaniko/executor \
         --context "$CI_PROJECT_DIR" \
         --dockerfile "$CI_PROJECT_DIR/Dockerfile" \
