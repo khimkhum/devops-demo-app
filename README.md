@@ -41,6 +41,7 @@ Kubernetes deployment credentials. Argo CD applies the desired Kubernetes state.
 | [Application — GitLab](https://gitlab.com/levankhiem0000/devops-demo-app) | Canonical CI source: application, tests, build and CI configuration |
 | [GitOps — GitLab](https://gitlab.com/levankhiem0000/devops-demo-gitops) | Canonical desired state watched by Argo CD |
 | [Application — GitHub](https://github.com/khimkhum/devops-demo-app) | Public portfolio snapshot |
+| [GitOps — GitHub](https://github.com/khimkhum/devops-demo-gitops) | Public deployment configuration snapshot |
 
 The GitLab projects are private. The screenshot and [release evidence](docs/EVIDENCE.md)
 let reviewers inspect verified results without access to the private CI instance.

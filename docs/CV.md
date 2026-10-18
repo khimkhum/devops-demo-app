@@ -19,7 +19,7 @@ Python, Flask, PostgreSQL, Docker, Harbor, Kubernetes/K3s, GitLab CI, Kaniko, Ar
   deployment verification, promotion and rollback procedures.
 
 Repository: https://github.com/khimkhum/devops-demo-app
-Add the public GitOps URL only after publishing and verifying that repository.
+GitOps: https://github.com/khimkhum/devops-demo-gitops
 
 ## Bản tiếng Việt
 
