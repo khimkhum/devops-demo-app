@@ -5,7 +5,7 @@ umask 077
 PROJECT_DIR="$(git rev-parse --show-toplevel)"
 cd "$PROJECT_DIR"
 
-REGISTRY="192.168.1.31:8443"
+REGISTRY="192.168.1.32:8443"
 IMAGE_REPOSITORY="$REGISTRY/intern/devops-demo"
 COMMIT_SHA="$(git rev-parse HEAD)"
 IMAGE_TAG="kaniko-$COMMIT_SHA"

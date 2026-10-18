@@ -87,7 +87,7 @@ Prerequisites:
 Authenticate interactively with a Harbor robot account:
 
 ```bash
-docker login 192.168.1.31:8443 -u 'robot$intern+deploy-pull'
+docker login 192.168.1.32:8443 -u 'robot$intern+deploy-pull'
 ```
 
 Pull and deploy the application:

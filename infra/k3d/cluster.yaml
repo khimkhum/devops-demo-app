@@ -27,7 +27,7 @@ volumes:
 registries:
   config: |
     configs:
-      "192.168.1.31:8443":
+      "192.168.1.32:8443":
         tls:
           ca_file: /etc/ssl/certs/harbor-lab-ca.crt
 

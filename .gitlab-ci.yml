@@ -7,7 +7,7 @@ default:
     - intern-lab
 
 variables:
-  HARBOR_REGISTRY: "192.168.1.31:8443"
+  HARBOR_REGISTRY: "192.168.1.32:8443"
 
 unit_test:
   stage: test

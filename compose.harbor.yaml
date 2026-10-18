@@ -1,5 +1,5 @@
 services:
   app:
-    image: "192.168.1.31:8443/intern/devops-demo@sha256:73c42c9ba1b009ca5b861bd577c0e9e0e3cf598326f6692b8fc53f5c189e217e"
+    image: "192.168.1.32:8443/intern/devops-demo@sha256:73c42c9ba1b009ca5b861bd577c0e9e0e3cf598326f6692b8fc53f5c189e217e"
     environment:
       APP_ENV: harbor-lab
